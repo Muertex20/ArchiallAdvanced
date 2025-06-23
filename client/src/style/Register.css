@@ -1,0 +1,111 @@
+.Container-register {
+  background-color: #121212;
+  padding: 25px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgb(0, 248, 17);
+  width: 400px;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  height: auto;
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: linear-gradient(to bottom right, #000000, #000000);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  color: #1eff00;
+  text-shadow: 0 0 10px #1eff00, 0 0 20px #76ff0e;
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+form {
+  background-color: #121212;
+  padding: 25px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgb(0, 248, 17);
+  width: 300px;
+  height: 300px;
+  color: #ccc;
+}
+
+p {
+  color: #1eff00;
+  font-weight: bold;
+}
+
+a {
+  width: 50%;
+  align-self: center;
+  padding: 12px;
+  color: rgb(17, 0, 255);
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 8px 2px;
+  margin-top: 4px;
+  background: #1f1f1f;
+  border: 1.5px solid #010101;
+  border-radius: 6px;
+  color: rgb(43, 255, 0);
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+  box-shadow: 0 0 5px rgba(30, 255, 0, 0.2);
+}
+
+.input-group input:focus {
+  border-color: #1eff00;
+  box-shadow: 0 0 8px #1eff00, 0 0 16px #1eff00;
+  outline: none;
+}
+
+button {
+  width: 50%;
+  align-self: center;
+  padding: 12px;
+  background: #1eff00;
+  color: black;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  animation: neon-glow 2s infinite;
+  box-shadow: 0 0 10px #1eff0072, 0 0 20px #a7ff0372;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #1eff00, 0 0 30px #1eff00;
+}
+
+@keyframes neon-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px #1eff00, 0 0 20px #1eff00, 0 0 30px #1eff00;
+  }
+  50% {
+    box-shadow: 0 0 8px #a7ff03, 0 0 30px #a7ff03, 0 0 40px #a7ff03;
+  }
+}
