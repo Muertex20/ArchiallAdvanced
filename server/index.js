@@ -141,13 +141,21 @@ app.post('/repositorio', (req, res) => {
 app.get('/download/:filename', (req, res) => {
   const fileName = req.params.filename;
   const filePath = path.join(__dirname, 'uploads', fileName);
-  res.download(filePath, (err) => {
-    if (err) {
-      console.error('Error al descargar el archivo:', err);
-      res.status(500).send('Error al descargar el archivo');
-    } else {
-      console.log('Archivo descargado:', fileName);
+
+  db.query('SELECT Nombre FROM archivo WHERE Ruta = ?', [fileName], (err, results) => {
+    if (err || results.length === 0) {
+      console.error('No se encontró el archivo en la base de datos:', err);
+      return res.status(404).send('Archivo no encontrado');
     }
+    const nombreOriginal = results[0].Nombre;
+    res.download(filePath, nombreOriginal, (err) => {
+      if (err) {
+        console.error('Error al descargar el archivo:', err);
+        res.status(500).send('Error al descargar el archivo');
+      } else {
+        console.log('Archivo descargado:', nombreOriginal);
+      }
+    });
   });
 });
 

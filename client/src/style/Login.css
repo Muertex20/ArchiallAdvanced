@@ -14,7 +14,7 @@
 }
 
 
-body {
+body, html {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
@@ -22,6 +22,13 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#root, .App {
+  height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -39,7 +46,6 @@ form {
   border-radius: 10px;
   box-shadow: 0 0 15px rgb(0, 248, 17);
   width: 300px;
-  height: 300px;
   color: #ccc;
 }
 
@@ -86,7 +92,7 @@ button {
   align-self: center;
   padding: 12px;
   background: #1eff00;
-  color: black;
+  color: rgba(255, 255, 255, 0.855);
   font-size: 15px;
   font-weight: bold;
   border: none;

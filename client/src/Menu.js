@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Axios from 'axios';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
+import './style/SweetAlert.css';
 import './style/Navbar.css';
 import './style/Menu.css';
 
@@ -12,6 +15,10 @@ const Navbar = () => {
   const [archivos, setArchivos] = useState([]); // Archivos en la carpeta actual
   const [carpetaActual] = useState(null); // ID de la carpeta actual
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [menuAbierto, setMenuAbierto] = useState(null);
+  const previewRef = useRef(null);
+  const [previewReady, setPreviewReady] = useState(false);
+  const navigate = useNavigate();
   //const [carpetas, setCarpetas] = useState([]);
 
   // useEffect(() => {
@@ -32,32 +39,99 @@ const Navbar = () => {
   //   setCarpetas(res.data);
   // };
 
+  const handleCerrarSesion = () => {
+    Swal.fire({
+      icon: 'success',
+      title: '¡Sesión cerrada!',
+      text: 'Redirigiendo al inicio de sesión...',
+      scrollbarPadding: false,
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+      background: '#111',
+      color: '#00ff00',
+    }).then(() => {
+      navigate('/login');
+    });
+  };
+
   const cargarArchivos = async (idRepositorio) => {
     const res = await Axios.get(`http://localhost:3001/archivos/${idRepositorio || 0}`);
     setArchivos(res.data);
   };
 
   const handleVisualizar = (archivo) => {
-    // Solo muestra preview si es imagen
     const esImagen = archivo.Tipo && archivo.Tipo.startsWith('image');
+    const esVideo = archivo.Tipo && archivo.Tipo.startsWith('video');
     if (esImagen) {
-      setPreviewUrl(`http://localhost:3001/uploads/${archivo.Ruta}`);
+      setPreviewUrl({ tipo: 'imagen', url: `http://localhost:3001/uploads/${archivo.Ruta}` });
+    } else if (esVideo) {
+      setPreviewUrl({ tipo: 'video', url: `http://localhost:3001/uploads/${archivo.Ruta}` });
     } else {
       setPreviewUrl(null);
-      setUploadMessage('Solo se pueden previsualizar imágenes.');
+      setUploadMessage('Solo se pueden previsualizar imágenes o videos.');
     }
   };
 
   const handleEliminar = async (idArchivo, ruta) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este archivo?')) return;
+    const result = await Swal.fire({
+      title: '¿Seguro que deseas eliminar este archivo?',
+      text: '¡No podrás recuperarlo!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#00e200',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      background: '#111',
+      color: '#00ff00',
+      scrollbarPadding: false,
+      customClass: {
+        confirmButton: 'swal2-confirm-wide',
+        cancelButton: 'swal2-cancel-wide'
+      }
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await Axios.delete(`http://localhost:3001/archivo/${idArchivo}`, { data: { ruta } });
-      setUploadMessage('Archivo eliminado');
+      Swal.fire({
+        icon: 'success',
+        title: 'Archivo eliminado',
+        confirmButtonColor: '#00e200',
+        background: '#111',
+        color: '#00ff00',
+        scrollbarPadding: false,
+        customClass: {
+          confirmButton: 'swal2-confirm-wide'
+        }
+      });
       cargarArchivos(idRepositorio);
     } catch (err) {
-      setUploadMessage('Error al eliminar archivo');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al eliminar archivo',
+        confirmButtonColor: '#00e200',
+        background: '#111',
+        color: '#00ff00',
+        scrollbarPadding: false,
+        customClass: {
+          confirmButton: 'swal2-confirm-wide'
+        }
+      });
     }
   };
+
+  useEffect(() => {
+    if (previewUrl) setPreviewReady(false);
+  }, [previewUrl]);
+
+  useEffect(() => {
+    if (previewReady && previewRef.current) {
+      previewRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [previewReady]);
 
   useEffect(() => {
     if (vistaActual === "Mi repositorio") {
@@ -134,7 +208,7 @@ const Navbar = () => {
               </div>
               <input
                 id="fileInput"
-                type="file"
+                type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt,.zip,.mp4"
                 onChange={handleFileChange}
                 className="hidden-input"
               />
@@ -175,10 +249,22 @@ const Navbar = () => {
                   archivos.map((archivo) => (
                     <tr key={archivo.ID_Archivo}>
                       <td>{archivo.Nombre}</td>
-                      <td>
-                        <button onClick={() => handleVisualizar(archivo)}>Visualizar</button>
-                        <button onClick={() => handleEliminar(archivo.ID_Archivo, archivo.Ruta)}>Eliminar</button>
-                        <button onClick={() => window.open(`http://localhost:3001/download/${archivo.Ruta}`, '_blank')}>Descargar</button>
+                      <td style={{ position: 'relative' }}>
+                        <button
+                          className="acciones-btn"
+                          onClick={() => setMenuAbierto(menuAbierto === archivo.ID_Archivo ? null : archivo.ID_Archivo)}
+                        >
+                          Acciones
+                        </button>
+                        {menuAbierto === archivo.ID_Archivo && (
+                          <div className="acciones-dropdown">
+                            {(archivo.Tipo && (archivo.Tipo.startsWith('image') || archivo.Tipo.startsWith('video'))) && (
+                              <button onClick={() => { handleVisualizar(archivo); setMenuAbierto(null); }}>Visualizar</button>
+                            )}
+                            <button onClick={() => { handleEliminar(archivo.ID_Archivo, archivo.Ruta); setMenuAbierto(null); }}>Eliminar</button>
+                            <button onClick={() => { window.open(`http://localhost:3001/download/${archivo.Ruta}`, '_blank'); setMenuAbierto(null); }}>Descargar</button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -186,19 +272,51 @@ const Navbar = () => {
               </tbody>
             </table>
             {previewUrl && (
-              <div style={{ marginTop: '20px' }}>
-                <h3>Vista previa</h3>
-                <img src={previewUrl} alt="Vista previa" style={{ maxWidth: '400px', maxHeight: '300px', border: '2px solid #00ff00', boxShadow: '0 0 20px #00ff00' }} />
+              <div style={{ marginTop: '0' }}>
+                <h3 style={{ marginBottom: '5px' }}>Vista previa</h3>
+                {previewUrl.tipo === 'imagen' && (
+                  <img
+                    src={previewUrl.url}
+                    alt="Vista previa"
+                    style={{ maxWidth: '400px', maxHeight: '300px' }}
+                    onLoad={() => setPreviewReady(true)}
+                  />
+                )}
+                {previewUrl.tipo === 'video' && (
+                  <video
+                    src={previewUrl.url}
+                    controls
+                    style={{ maxWidth: '400px', maxHeight: '300px' }}
+                    onLoadedData={() => setPreviewReady(true)}
+                  />
+                )}
                 <br />
-                <button onClick={() => setPreviewUrl(null)}>Cerrar vista previa</button>
+                <button
+                  ref={previewRef}
+                  className='cerrar-vista-previa'
+                  onClick={() => setPreviewUrl(null)}
+                >
+                  Cerrar vista previa
+                </button>
               </div>
             )}
           </div>
         );
-      case "Acerca de":
-        return <p className='Desing-conteiner'>Esta es una app creada por Archiall Team.</p>;
+      case "Mi perfil":
+        return (
+          <div className='Desing-conteiner'>
+            <p>Modifica tu perfil</p>
+            <button
+              className="acciones-btn"
+              style={{ marginTop: '30px', width: '200px' }}
+              onClick={handleCerrarSesion}
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        );
       default:
-        return <h2 className='Desing-conteiner'>Vista no encontrada</h2>;
+        return null;
     }
   };
 
@@ -210,7 +328,7 @@ const Navbar = () => {
           <li><button onClick={() => setVistaActual("subir")}>Subir</button></li>
           <li><button onClick={() => setVistaActual("compartir")}>Compartir</button></li>
           <li><button onClick={() => setVistaActual("Mi repositorio")}>Mi repositorio</button></li>
-          <li><button onClick={() => setVistaActual("Acerca de")}>Acerca de</button></li>
+          <li><button onClick={() => setVistaActual("Mi perfil")}>Mi perfil</button></li>
         </ul>
       </nav>
 

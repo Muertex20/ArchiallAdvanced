@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Axios from 'axios';
 import './style/Register.css';
+import Swal from 'sweetalert2';
+import './style/SweetAlert.css';
 import { validarRegistro } from './Validaciones';
 
 function Register() {
@@ -10,9 +12,20 @@ function Register() {
   const [Correo, setCorreo] = useState("");
 
   const addUser = () => {
-    const errores = validarRegistro(Contrasena, Contrasena2, Correo); 
+    const errores = validarRegistro(Contrasena, Contrasena2, Correo);
     if (errores.length > 0) {
-      alert(errores.join('\n'));
+      Swal.fire({
+        icon: 'warning',
+        title: 'Errores en el registro',
+        html: errores.join('<br>'),
+        confirmButtonColor: '#00e200',
+        scrollbarPadding: false,
+        background: '#111',
+        color: '#00ff00',
+        customClass: {
+          confirmButton: 'swal2-confirm-wide'
+        }
+      });
       return;
     }
     Axios.post('http://localhost:3001/createUser', {
@@ -22,15 +35,52 @@ function Register() {
       Contrasena2: Contrasena2
     })
       .then((response) => {
-        alert('Usuario registrado exitosamente');
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Usuario registrado exitosamente.',
+          background: '#111',
+          color: '#00ff00',
+          scrollbarPadding: false
+        });
       })
       .catch((error) => {
         if (error.response) {
-          console.error('Error en la respuesta del servidor.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en la respuesta del servidor.',
+            confirmButtonColor: '#00e200',
+            scrollbarPadding: false,
+            background: '#111',
+            color: '#00ff00',
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
         } else if (error.request) {
-          console.error('No se recibió respuesta del servidor');
+          Swal.fire({
+            icon: 'error',
+            title: 'No se recibió respuesta del servidor',
+            confirmButtonColor: '#00e200',
+            scrollbarPadding: false,
+            background: '#111',
+            color: '#00ff00',
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
         } else {
-          console.error('Error en la petición');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en la petición',
+            confirmButtonColor: '#00e200',
+            scrollbarPadding: false,
+            background: '#111',
+            color: '#00ff00',
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
         }
       });
   };
@@ -44,7 +94,7 @@ function Register() {
         <input
           type="text"
           id="Nombre"
-          value={Nombre} 
+          value={Nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
       </div>

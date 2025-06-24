@@ -1,0 +1,28 @@
+.swal2-title, .swal2-text {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 2.2rem !important;
+  font-weight: bold !important;
+  color: #1eff00 !important;
+  text-shadow: 0 0 5px #00ff00;
+  letter-spacing: 0.5px;
+}
+
+.swal2-html-container, .swal2-content {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 1.2rem !important;
+  color: #1eff00 !important;
+  text-shadow: 0 0 5px #00ff00;
+  font-weight: normal;
+}
+
+.swal2-confirm-wide, .swal2-cancel-wide {
+  min-width: 140px;
+  width: 140px;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 0 15px #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}

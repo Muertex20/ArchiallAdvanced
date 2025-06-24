@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import './style/Login.css';
+import './style/SweetAlert.css';
 
 function Login() {
   const [Correo, setCorreo] = useState("");
@@ -10,7 +12,18 @@ function Login() {
 
   const iniciarSesion = () => {
     if (!Correo || !Contrasena) {
-      alert("Debe completar todos los campos.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Debe completar todos los campos.',
+        scrollbarPadding: false,
+        confirmButtonColor: '#00e200',
+        background: '#111',
+        color: '#00ff00',
+        customClass: {
+          confirmButton: 'swal2-confirm-wide'
+        }
+      });
       return;
     }
 
@@ -21,16 +34,49 @@ function Login() {
       .then((res) => {
         console.log("Respuesta del backend:", res);
         if (res.data.status === 'success') {
-          alert("Inicio de sesión exitoso.");
-          Navigate('/Menu');
-          // Redirigir o guardar info según necesidad
+          Swal.fire({
+            icon: "success",
+            title: "¡Bienvenido!",
+            text: "Redirigiendo al Menu...",
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            scrollbarPadding: false,
+            background: '#111',
+            color: '#00ff00',
+            didOpen: () => Swal.showLoading()
+          }).then(() => {
+            Navigate('/Menu');
+          });
         } else {
-          alert("Credenciales inválidas.");
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Credenciales inválidas.',
+            scrollbarPadding: false,
+            confirmButtonColor: '#00e200',
+            background: '#111',
+            color: '#00ff00',
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
         }
       })
       .catch((error) => {
         console.error("Error al iniciar sesión:", error);
-        alert("Error al iniciar sesión.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al iniciar sesión.',
+          scrollbarPadding: false,
+          confirmButtonColor: '#00e200',
+          background: '#111',
+          color: '#00ff00',
+          customClass: {
+            confirmButton: 'swal2-confirm-wide'
+          }
+        });
       });
   };
 
