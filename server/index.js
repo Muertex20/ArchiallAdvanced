@@ -116,8 +116,12 @@ app.post('/uploads', upload.single('file'), (req, res) => {
 
 app.get('/archivos/:idRepositorio', (req, res) => {
   const idRepositorio = req.params.idRepositorio;
-  const query = 'SELECT * FROM archivo WHERE ID_Repositorio = ?';
-  db.query(query, [idRepositorio], (err, results) => {
+  const idUsuario = req.query.user;
+  if (!idUsuario) {
+    return res.status(400).json({ error: 'Falta el parámetro de usuario' });
+  }
+  const query = 'SELECT * FROM archivo WHERE ID_Repositorio = ? AND ID_Usuario = ?';
+  db.query(query, [idRepositorio, idUsuario], (err, results) => {
     if (err) {
       console.error('Error al obtener archivos:', err);
       return res.status(500).json({ error: 'Error al obtener archivos' });

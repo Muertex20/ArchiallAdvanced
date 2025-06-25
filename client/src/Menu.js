@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getCookie, deleteCookie } from './Cookies';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ const Navbar = () => {
   const [vistaActual, setVistaActual] = useState("bienvenida");
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadMessage, setUploadMessage] = useState('');
-  const idUsuario = 1;
+  const idUsuario = getCookie('userId');
   const idRepositorio = 1;
   const [archivos, setArchivos] = useState([]); // Archivos en la carpeta actual
   const [carpetaActual] = useState(null); // ID de la carpeta actual
@@ -38,8 +39,15 @@ const Navbar = () => {
   //   const res = await Axios.get(`http://localhost:3001/repositorios/${idUsuario}`);
   //   setCarpetas(res.data);
   // };
+  React.useEffect(() => {
+    const userId = getCookie('userId');
+    if (!userId) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const handleCerrarSesion = () => {
+    deleteCookie('userId');
     Swal.fire({
       icon: 'success',
       title: '¡Sesión cerrada!',
@@ -56,7 +64,8 @@ const Navbar = () => {
   };
 
   const cargarArchivos = async (idRepositorio) => {
-    const res = await Axios.get(`http://localhost:3001/archivos/${idRepositorio || 0}`);
+    const idUsuario = getCookie('userId');
+    const res = await Axios.get(`http://localhost:3001/archivos/${idRepositorio || 0}?user=${idUsuario}`);
     setArchivos(res.data);
   };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { setCookie } from './Cookies';
 import Axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -34,6 +35,7 @@ function Login() {
       .then((res) => {
         console.log("Respuesta del backend:", res);
         if (res.data.status === 'success') {
+          setCookie('userId', res.data.user.ID_Usuario);
           Swal.fire({
             icon: "success",
             title: "¡Bienvenido!",
