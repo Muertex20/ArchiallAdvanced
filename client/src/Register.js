@@ -148,7 +148,8 @@ function Register() {
               scrollbarPadding: false,
               customClass: {
                 confirmButton: 'swal2-confirm-wide'
-              }
+              },
+              didOpen: () => Swal.showLoading()
             }).then(() => {
               window.location.href = '/login';
             });
