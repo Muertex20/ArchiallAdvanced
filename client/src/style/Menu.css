@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -10,7 +11,8 @@ body, html {
   justify-content: center;
 }
 
-#root, .App {
+#root,
+.App {
   height: 100%;
   display: flex;
   align-items: center;
@@ -150,7 +152,7 @@ body, html {
   text-shadow: 0 0 5px #00ff00;
   transition: all 0.3s ease;
   display: inline-block;
-  width: 100px;
+  width: 110px;
   text-align: center;
 }
 
@@ -181,4 +183,190 @@ body, html {
 
 .repo-table td:nth-child(2) button {
   margin-left: 65px;
+}
+
+/* Usuarios flotantes en Compartir */
+.conteiner-usuarios {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.usuario-card {
+  background: #111;
+  border: 2px solid #00ff00;
+  border-radius: 16px;
+  box-shadow: 0 0 20px #00ff00;
+  color: #00ff00;
+  min-width: 180px;
+  min-height: 60px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.usuario-foto-circulo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #00ff00;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+}
+
+.usuario-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.usuario-descripcion {
+  display: block;
+  margin-top: 6px;
+  color: #00ff88;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 180px;
+  word-break: break-word;
+}
+
+.usuario-foto-circulo.grande {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 3px solid #00ff00;
+  overflow: hidden;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  margin-left: 153px;
+}
+
+.usuario-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.busqueda-usuarios {
+  width: 300px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 2px solid #00ff00;
+  background: #111;
+  color: #00ff00;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1rem;
+  box-shadow: 0 0 10px #00ff00;
+}
+
+.subtitulo-compartir {
+  color: #00ff00;
+  font-size: 1.15rem;
+  margin-bottom: 32px;
+  margin-top: 8px;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-shadow: 0 0 8px #00ff00, 0 0 16px #00ff00;
+}
+
+.swal2-confirm-wide,
+.swal2-cancel-wide {
+  background: #000 !important;
+  color: #00ff00 !important;
+  border: 2px solid #00ff00 !important;
+  box-shadow: 0 0 15px #00ff00 !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: bold !important;
+  text-shadow: 0 0 5px #00ff00 !important;
+}
+
+.selector-archi-form {
+  transform: translateX(55px);
+}
+
+/* Efectos para el perfil de usuario */
+.usuario-card:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 40px #00ff88;
+  color: #00ff88;
+  border-color: #00ff88;
+}
+
+.usuarios-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.perfil-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.perfil-foto-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.perfil-foto-circulo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #00ff00;
+  overflow: hidden;
+  box-shadow: 0 0 20px #00ff00;
+  margin-bottom: 10px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.perfil-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perfil-descripcion-section {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.perfil-descripcion {
+  width: 300px;
+  min-height: 80px;
+  border-radius: 12px;
+  border: 2px solid #00ff00;
+  background: #111;
+  color: #00ff00;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  padding: 12px;
+  box-shadow: 0 0 10px #00ff00;
+  resize: vertical;
 }

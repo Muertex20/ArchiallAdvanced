@@ -107,7 +107,35 @@ function Login() {
       </div>
 
       <button type="button" onClick={iniciarSesion}>INICIAR SESION</button>
-      <p>¿Quieres registrarte? <a href='/Register'>Haz click aqui</a></p>
+      <p className="login-link-row">
+        ¿Quieres registrarte?
+        <a
+          href="/Register"
+          className="login-link-btn"
+          onClick={e => {
+            e.preventDefault();
+            Swal.fire({
+              title: 'Redireccionando',
+              text: 'Te llevaremos al registro...',
+              background: '#111',
+              color: '#00ff00',
+              showConfirmButton: false,
+              timer: 1200,
+              timerProgressBar: true,
+              scrollbarPadding: false,
+              customClass: {
+                confirmButton: 'swal2-confirm-wide'
+              }
+            }).then(() => {
+              window.location.href = '/Register';
+            });
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          Haz click aqui
+        </a>
+      </p>
     </div>
 
   );
