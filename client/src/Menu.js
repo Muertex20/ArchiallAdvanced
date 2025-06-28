@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { getCookie, deleteCookie } from './Cookies';
+import { useTable } from 'react-table';
+/* import AdminPanel from './Admin/AdminPanel';
+import AdminRoute from './Admin/AdminRoute'; */
 import Axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
@@ -16,11 +19,13 @@ const Navbar = () => {
   const [editandoDescripcion, setEditandoDescripcion] = useState(false);
   const [usuarios, setUsuarios] = useState([]);
   const idUsuario = getCookie('userId');
+  const rol = getCookie('rol');
   const [idRepositorio, setIdRepositorio] = useState(null);
   const [archivos, setArchivos] = useState([]); // Archivos en la carpeta actual
   const [carpetaActual] = useState(null); // ID de la carpeta actual
   const [previewUrl, setPreviewUrl] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(null);
+  const [accionMenuAbierto, setAccionMenuAbierto] = useState(null); // Panel de admin
   const previewRef = useRef(null);
   const [previewReady, setPreviewReady] = useState(false);
   const [busquedaUsuario, setBusquedaUsuario] = useState('');
@@ -33,11 +38,11 @@ const Navbar = () => {
     }
   }, [navigate]);
 
-  const cargarUsuarios = () => {
+  const cargarUsuarios = useCallback(() => {
     Axios.get('http://localhost:3001/usuarios')
       .then(res => setUsuarios(res.data))
       .catch(() => setUsuarios([]));
-  };
+  }, []);
 
   const handleCerrarSesion = () => {
     deleteCookie('userId');
@@ -183,13 +188,21 @@ const Navbar = () => {
         });
     }
   }, [vistaActual, idUsuario]);
+
   // Muestra los usuarios en la vista de compartir tambien carga los archivos a compartir
   useEffect(() => {
     if (vistaActual === "Usuarios" && idRepositorio) {
       cargarUsuarios();
       cargarArchivos(idRepositorio);
     }
-  }, [vistaActual, idRepositorio]);
+  }, [vistaActual, idRepositorio, cargarUsuarios]);
+
+  // Al iniciar sesion si vamos directamente a panel este carga al momento
+  useEffect(() => {
+    if (vistaActual === "admin") {
+      cargarUsuarios();
+    }
+  }, [vistaActual, cargarUsuarios]);
 
   useEffect(() => {
     if (!idUsuario) return;
@@ -449,6 +462,186 @@ const Navbar = () => {
       });
     });
   };
+  // maneja acciones dentro del panel de administración
+  const handleEliminarUsuario = useCallback((idUsuario) => {
+    Swal.fire({
+      title: '¿Eliminar usuario?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#00e200',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      background: '#111',
+      color: '#00ff00',
+      customClass: {
+        confirmButton: 'swal2-confirm-wide',
+        cancelButton: 'swal2-cancel-wide'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Axios.delete(`http://localhost:3001/usuario/${idUsuario}`)
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Eliminado',
+              text: 'El usuario ha sido eliminado.',
+              background: '#111',
+              color: '#00ff00',
+              confirmButtonColor: '#00e200',
+              scrollbarPadding: false,
+              customClass: {
+                confirmButton: 'swal2-confirm-wide'
+              }
+            });
+            cargarUsuarios();
+          });
+      }
+    });
+  }, [cargarUsuarios]);
+
+  const handleCambiarRol = useCallback((usuario) => {
+    const nuevoRol = usuario.Rol === 'admin' ? 'usuario' : 'admin';
+    Swal.fire({
+      title: 'Cambiar rol',
+      text: `¿Seguro que deseas cambiar el rol a "${nuevoRol}"?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#00e200',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cambiar',
+      background: '#111',
+      color: '#00ff00',
+      customClass: {
+        confirmButton: 'swal2-confirm-wide',
+        cancelButton: 'swal2-cancel-wide'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Axios.put(`http://localhost:3001/usuario/${usuario.ID_Usuario}/rol`, { rol: nuevoRol })
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Rol cambiado',
+              text: `El usuario ahora es "${nuevoRol}".`,
+              background: '#111',
+              color: '#00ff00',
+              confirmButtonColor: '#00e200',
+              scrollbarPadding: false,
+              customClass: {
+                confirmButton: 'swal2-confirm-wide'
+              }
+            });
+            cargarUsuarios();
+          });
+      }
+    });
+  }, [cargarUsuarios]);
+
+  const handleBanearUsuario = useCallback((idUsuario, baneadoActual) => {
+    Swal.fire({
+      title: baneadoActual ? '¿Desbanear usuario?' : '¿Banear usuario?',
+      text: baneadoActual
+        ? 'El usuario podrá volver a acceder al sistema.'
+        : 'El usuario no podrá acceder al sistema.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#00e200',
+      cancelButtonColor: '#d33',
+      confirmButtonText: baneadoActual ? 'Sí, desbanear' : 'Sí, banear',
+      background: '#111',
+      color: '#00ff00',
+      customClass: {
+        confirmButton: 'swal2-confirm-wide',
+        cancelButton: 'swal2-cancel-wide'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Axios.put(`http://localhost:3001/usuario/${idUsuario}/ban`, { baneado: !baneadoActual })
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: baneadoActual ? 'Desbaneado' : 'Baneado',
+              text: baneadoActual
+                ? 'El usuario ha sido desbaneado.'
+                : 'El usuario ha sido baneado.',
+              background: '#111',
+              color: '#00ff00',
+              confirmButtonColor: '#00e200',
+              scrollbarPadding: false,
+              customClass: {
+                confirmButton: 'swal2-confirm-wide'
+              }
+            });
+            cargarUsuarios();
+          });
+      }
+    });
+  }, [cargarUsuarios]);
+
+  useEffect(() => {
+    if (!idUsuario) return;
+    Axios.get(`http://localhost:3001/perfil/${idUsuario}`)
+      .then(res => {
+        if (res.data.Baneado) {
+          deleteCookie('userId');
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'Fuiste baneado por uso indebido de la web.',
+            background: '#111',
+            color: '#00ff00',
+            confirmButtonColor: '#00e200',
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          }).then(() => {
+            navigate('/login');
+          });
+        }
+      });
+  }, [idUsuario, navigate]);
+  // Tabla de administración de usuarios crea columnas y datos para react-table
+  const columns = useMemo(() => [
+    { Header: 'Nombre', accessor: 'Nombre' },
+    { Header: 'Correo', accessor: 'Correo' },
+    { Header: 'Rol', accessor: 'Rol' },
+    {
+      Header: 'Acciones',
+      id: 'acciones',
+      Cell: ({ row }) => (
+        <div style={{ position: 'relative' }}>
+          <button
+            className="acciones-btn"
+            onClick={() =>
+              setAccionMenuAbierto(accionMenuAbierto === row.original.ID_Usuario ? null : row.original.ID_Usuario)
+            }
+          >
+            Acciones
+          </button>
+          {accionMenuAbierto === row.original.ID_Usuario && (
+            <div className="acciones-dropdown">
+              <button onClick={() => handleEliminarUsuario(row.original.ID_Usuario)}>Eliminar usuario</button>
+              <button onClick={() => handleCambiarRol(row.original)}>Cambiar rol</button>
+              <button onClick={() => handleBanearUsuario(row.original.ID_Usuario, row.original.Baneado)}>
+                {row.original.Baneado ? 'Desbanear' : 'Banear'}
+              </button>
+            </div>
+          )}
+        </div>
+      ),
+    },
+  ], [accionMenuAbierto, handleEliminarUsuario, handleCambiarRol, handleBanearUsuario]);
+
+  const tableInstance = useTable({ columns, data: usuarios });
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = tableInstance;
 
   const renderContenido = () => {
     switch (vistaActual) {
@@ -701,11 +894,44 @@ const Navbar = () => {
             </button>
           </div>
         );
+      case "admin":
+        return (
+          <div className="Desing-conteiner">
+            <h2>Panel de administración</h2>
+            <p style={{ color: "#00ff00" }}>
+              ¡Bienvenido, administrador! Aquí puedes gestionar usuarios.
+            </p>
+            <div style={{ overflowX: 'auto', marginTop: 30 }}>
+              <table {...getTableProps()} className="admin-table">
+                <thead>
+                  {headerGroups.map(headerGroup => (
+                    <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                      {headerGroup.headers.map(column => (
+                        <th {...column.getHeaderProps()} key={column.id}>{column.render('Header')}</th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {rows.map(row => {
+                    prepareRow(row);
+                    return (
+                      <tr {...row.getRowProps()} key={row.id}>
+                        {row.cells.map(cell => (
+                          <td {...cell.getCellProps()} key={cell.column.id}>{cell.render('Cell')}</td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
   };
-
   return (
     <>
       <nav className="navbar">
@@ -715,6 +941,16 @@ const Navbar = () => {
           <li><button onClick={() => setVistaActual("Usuarios")}>Usuarios</button></li>
           <li><button onClick={() => setVistaActual("Mi repositorio")}>Mi repositorio</button></li>
           <li><button onClick={() => setVistaActual("Mi perfil")}>Mi perfil</button></li>
+          {rol === 'admin' && (
+            <li>
+              <button
+                className="navbar-btn"
+                onClick={() => setVistaActual("admin")}
+              >
+                Panel de administración
+              </button>
+            </li>
+          )}
         </ul>
       </nav>
 

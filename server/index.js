@@ -32,8 +32,8 @@ db.connect((err) => {
 app.post('/createUser', (req, res) => {
   const { Nombre, Correo, Contrasena } = req.body;
 
-  const query = 'INSERT INTO usuario (Nombre, Correo, Contraseña) VALUES (?, ?, ?)';
-  db.query(query, [Nombre, Correo, Contrasena], (err, result) => {
+  const query = 'INSERT INTO usuario (Nombre, Correo, Contraseña, Rol) VALUES (?, ?, ?, ?)';
+  db.query(query, [Nombre, Correo, Contrasena, 'usuario'], (err, result) => {
     if (err) {
       console.error('Error al insertar nombre:', err);
       return res.status(500).json({ error: 'Error al registrar nombre' });
@@ -86,7 +86,7 @@ const upload = multer({ storage: storage });
 // Obtener las cosas agregadas por el usuario
 app.get('/perfil/:id', (req, res) => {
   const id = req.params.id;
-  db.query('SELECT FotoPerfil, Descripcion FROM usuario WHERE ID_Usuario = ?', [id], (err, results) => {
+  db.query('SELECT FotoPerfil, Descripcion, Baneado FROM usuario WHERE ID_Usuario = ?', [id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Error al obtener perfil' });
     res.json(results[0]);
   });
@@ -108,15 +108,17 @@ app.post('/perfil/:id', (req, res) => {
 
 // Ruta para obtener los usuarios y mostrarlos en "Compartir"
 app.get('/usuarios', (req, res) => {
-  db.query('SELECT ID_Usuario, Nombre, FotoPerfil, Descripcion FROM usuario', (err, results) => {
-    if (err) {
-      console.error('Error al obtener usuarios:', err);
-      return res.status(500).json({ error: 'Error al obtener usuarios' });
+  db.query(
+    'SELECT ID_Usuario, Nombre, Correo, Rol, Baneado, FotoPerfil, Descripcion FROM usuario',
+    (err, results) => {
+      if (err) {
+        console.error('Error al obtener usuarios:', err);
+        return res.status(500).json({ error: 'Error al obtener usuarios' });
+      }
+      res.status(200).json(results);
     }
-    res.status(200).json(results);
-  });
+  );
 });
-
 // Ruta subir archi
 app.post('/uploads', upload.single('file'), (req, res) => {
   const { ID_Usuario, ID_Repositorio } = req.body;
@@ -425,6 +427,60 @@ app.post('/notificacion-leida/:id', (req, res) => {
   db.query('UPDATE notificacion SET Leida = 1 WHERE ID_Notificacion = ?', [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: 'Error al marcar como leída' });
     res.json({ status: 'ok' });
+  });
+});
+// Acciones dentro del panel de administrador
+// Primero elimina todo lo que tiene el user y luego lo elimina a este
+app.delete('/usuario/:id', (req, res) => {
+  const idUsuario = req.params.id;
+
+  // 1. Elimina archivos del usuario
+  db.query('DELETE FROM archivo WHERE ID_Usuario = ?', [idUsuario], (err) => {
+    if (err) {
+      console.error('Error al eliminar archivos del usuario:', err);
+      return res.status(500).json({ error: 'Error al eliminar archivos del usuario' });
+    }
+
+    // 2. Elimina repositorio del usuario
+    db.query('DELETE FROM repositorio WHERE ID_Usuario = ?', [idUsuario], (err2) => {
+      if (err2) {
+        console.error('Error al eliminar repositorio del usuario:', err2);
+        return res.status(500).json({ error: 'Error al eliminar repositorio del usuario' });
+      }
+      
+      // 3. Elimina el usuario
+      db.query('DELETE FROM usuario WHERE ID_Usuario = ?', [idUsuario], (err3) => {
+        if (err3) {
+          console.error('Error al eliminar usuario:', err3);
+          return res.status(500).json({ error: 'Error al eliminar usuario' });
+        }
+        res.json({ status: 'success', message: 'Usuario y datos relacionados eliminados' });
+      });
+    });
+  });
+});
+// Cambiar rol de usuario
+app.put('/usuario/:id/rol', (req, res) => {
+  const idUsuario = req.params.id;
+  const { rol } = req.body;
+  db.query('UPDATE usuario SET Rol = ? WHERE ID_Usuario = ?', [rol, idUsuario], (err, result) => {
+    if (err) {
+      console.error('Error al cambiar rol:', err);
+      return res.status(500).json({ error: 'Error al cambiar rol' });
+    }
+    res.json({ status: 'success', message: 'Rol actualizado' });
+  });
+});
+// Banear usuario
+app.put('/usuario/:id/ban', (req, res) => {
+  const idUsuario = req.params.id;
+  const { baneado } = req.body;
+  db.query('UPDATE usuario SET Baneado = ? WHERE ID_Usuario = ?', [baneado ? 1 : 0, idUsuario], (err, result) => {
+    if (err) {
+      console.error('Error al banear usuario:', err);
+      return res.status(500).json({ error: 'Error al banear usuario' });
+    }
+    res.json({ status: 'success', message: 'Usuario baneado' });
   });
 });
 

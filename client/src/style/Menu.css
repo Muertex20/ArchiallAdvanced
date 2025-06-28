@@ -370,3 +370,65 @@ html {
   box-shadow: 0 0 10px #00ff00;
   resize: vertical;
 }
+
+/* Tabla de admin */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #111;
+  color: #00ff00;
+  box-shadow: 0 0 20px #00ff0055;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.admin-table th, .admin-table td {
+  border: 1px solid #00ff00;
+  padding: 10px 16px;
+  text-align: left;
+}
+.admin-table th {
+  background: #181818;
+  color: #00ff00;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.admin-table tr:nth-child(even) {
+  background: #161616;
+}
+.admin-table tr:hover {
+  background: #222;
+  color: #a7ff03;
+}
+
+.acciones-dropdown {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 18px; /* Espacio entre botones */
+  padding: 12px 8px;
+  min-width: 180px;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+.acciones-dropdown button {
+  background: #111;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+  border-radius: 10px;
+  margin: 5px 0;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  box-shadow: 0 0 18px #00ff00, 0 0 40px #00ff0033;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.acciones-dropdown button:hover {
+  background: #00ff00;
+  color: #111;
+  box-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00;
+}

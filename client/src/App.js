@@ -4,6 +4,8 @@ import ProtectedRoute from './ProtectedRoute';
 import Register from './Register';
 import Login from './Login';
 import Menu from './Menu';
+import AdminPanel from './Admin/AdminPanel';
+import AdminRoute from './Admin/AdminRoute';
 
 function App() {
   return (
@@ -18,6 +20,14 @@ function App() {
             <ProtectedRoute>
               <Menu />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
           }
         />
       </Routes>
