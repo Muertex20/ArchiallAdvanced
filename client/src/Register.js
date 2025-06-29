@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import './style/Register.css';
 import Swal from 'sweetalert2';
@@ -6,6 +7,7 @@ import './style/SweetAlert.css';
 import { validarRegistro } from './Validaciones';
 
 function Register() {
+  const navigate = useNavigate();
   const [Nombre, setNombre] = useState("");
   const [Contrasena, setContrasena] = useState("");
   const [Contrasena2, setContrasena2] = useState("");
@@ -32,7 +34,6 @@ function Register() {
       Nombre: Nombre,
       Correo: Correo,
       Contrasena: Contrasena,
-      Contrasena2: Contrasena2
     })
       .then((response) => {
         Swal.fire({
@@ -41,7 +42,12 @@ function Register() {
           text: 'Usuario registrado exitosamente.',
           background: '#111',
           color: '#00ff00',
-          scrollbarPadding: false
+          scrollbarPadding: false,
+          customClass: {
+            confirmButton: 'swal2-confirm-wide'
+          }
+        }).then(() => {
+          navigate('/login');
         });
       })
       .catch((error) => {

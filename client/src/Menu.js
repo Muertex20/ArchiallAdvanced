@@ -17,6 +17,7 @@ const Navbar = () => {
   const [fotoPerfil, setFotoPerfil] = useState(null);
   const [descripcionPerfil, setDescripcionPerfil] = useState("");
   const [editandoDescripcion, setEditandoDescripcion] = useState(false);
+  const [nombrePerfil, setNombrePerfil] = useState("");
   const [usuarios, setUsuarios] = useState([]);
   const idUsuario = getCookie('userId');
   const rol = getCookie('rol');
@@ -29,6 +30,7 @@ const Navbar = () => {
   const previewRef = useRef(null);
   const [previewReady, setPreviewReady] = useState(false);
   const [busquedaUsuario, setBusquedaUsuario] = useState('');
+  const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -123,6 +125,17 @@ const Navbar = () => {
       });
     }
   };
+
+  // filtrar usuarios en el react table de admin
+  const filteredUsuarios = useMemo(() => {
+    if (!search) return usuarios;
+    return usuarios.filter(u =>
+      u.Nombre.toLowerCase().includes(search.toLowerCase()) ||
+      u.Correo.toLowerCase().includes(search.toLowerCase()) ||
+      (u.Rol && u.Rol.toLowerCase().includes(search.toLowerCase()))
+    );
+  }, [usuarios, search]);
+
   // Maneja el cambio de foto de perfil
   // Lee el archivo seleccionado y lo convierte a una URL de datos
   const handleFotoPerfilChange = (e) => {
@@ -138,7 +151,8 @@ const Navbar = () => {
     setEditandoDescripcion(false);
     Axios.post(`http://localhost:3001/perfil/${idUsuario}`, {
       FotoPerfil: fotoPerfil,
-      Descripcion: descripcionPerfil
+      Descripcion: descripcionPerfil,
+      Nombre: nombrePerfil
     }).then(() => {
       Swal.fire({
         icon: 'success',
@@ -185,6 +199,7 @@ const Navbar = () => {
         .then(res => {
           setFotoPerfil(res.data.FotoPerfil || null);
           setDescripcionPerfil(res.data.Descripcion || "");
+          setNombrePerfil(res.data.Nombre || "");
         });
     }
   }, [vistaActual, idUsuario]);
@@ -203,6 +218,11 @@ const Navbar = () => {
       cargarUsuarios();
     }
   }, [vistaActual, cargarUsuarios]);
+
+  // si se cambia de vista se cierra el menu de acciones
+  useEffect(() => {
+    setAccionMenuAbierto(null);
+  }, [vistaActual]);
 
   useEffect(() => {
     if (!idUsuario) return;
@@ -462,6 +482,59 @@ const Navbar = () => {
       });
     });
   };
+
+  // Muestra los archivos del usuario seleccionado en un popup para el panel de administración
+  const handleVerArchivosUsuario = async (usuario) => {
+    try {
+      // 1. Obtener el repositorio del usuario
+      const repoRes = await Axios.get(`http://localhost:3001/repositorio-usuario/${usuario.ID_Usuario}`);
+      const idRepo = repoRes.data.ID_Repositorio;
+      // 2. Obtener los archivos de ese repositorio
+      const archivosRes = await Axios.get(`http://localhost:3001/archivos/${idRepo}?user=${usuario.ID_Usuario}`);
+      const archivos = archivosRes.data;
+
+      if (!archivos.length) {
+        Swal.fire({
+          icon: 'info',
+          title: `Archivos de ${usuario.Nombre}`,
+          text: 'Este usuario no tiene archivos en su repositorio.',
+          background: '#111',
+          color: '#00ff00',
+          confirmButtonColor: '#00e200',
+          scrollbarPadding: false,
+          customClass: { confirmButton: 'swal2-confirm-wide' }
+        });
+        return;
+      }
+
+      // 3. Mostrar los archivos en un popup
+      Swal.fire({
+        title: `Archivos de ${usuario.Nombre}`,
+        html: `
+        <ul style="text-align:left; color:#00ff00; max-height:300px; overflow:auto;">
+          ${archivos.map(a => `<li>${a.Nombre}</li>`).join('')}
+        </ul>
+      `,
+        background: '#111',
+        color: '#00ff00',
+        confirmButtonColor: '#00e200',
+        scrollbarPadding: false,
+        customClass: { confirmButton: 'swal2-confirm-wide' }
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron obtener los archivos del usuario.',
+        background: '#111',
+        color: '#00ff00',
+        confirmButtonColor: '#00e200',
+        scrollbarPadding: false,
+        customClass: { confirmButton: 'swal2-confirm-wide' }
+      });
+    }
+  };
+
   // maneja acciones dentro del panel de administración
   const handleEliminarUsuario = useCallback((idUsuario) => {
     Swal.fire({
@@ -620,12 +693,13 @@ const Navbar = () => {
             Acciones
           </button>
           {accionMenuAbierto === row.original.ID_Usuario && (
-            <div className="acciones-dropdown">
+            <div className="acciones-dropdown-panel">
               <button onClick={() => handleEliminarUsuario(row.original.ID_Usuario)}>Eliminar usuario</button>
               <button onClick={() => handleCambiarRol(row.original)}>Cambiar rol</button>
               <button onClick={() => handleBanearUsuario(row.original.ID_Usuario, row.original.Baneado)}>
                 {row.original.Baneado ? 'Desbanear' : 'Banear'}
               </button>
+              <button onClick={() => handleVerArchivosUsuario(row.original)}>Ver archivos</button> {/* <-- AGREGA ESTA LÍNEA */}
             </div>
           )}
         </div>
@@ -633,7 +707,7 @@ const Navbar = () => {
     },
   ], [accionMenuAbierto, handleEliminarUsuario, handleCambiarRol, handleBanearUsuario]);
 
-  const tableInstance = useTable({ columns, data: usuarios });
+  const tableInstance = useTable({ columns, data: filteredUsuarios });
 
   const {
     getTableProps,
@@ -707,6 +781,7 @@ const Navbar = () => {
             <div className="usuarios-lista">
               {usuarios
                 .filter(usuario =>
+                  usuario.ID_Usuario !== Number(idUsuario) &&
                   usuario.Nombre.toLowerCase().includes(busquedaUsuario.toLowerCase())
                 )
                 .map(usuario => (
@@ -836,6 +911,27 @@ const Navbar = () => {
       case "Mi perfil":
         return (
           <div className='Desing-conteiner perfil-container'>
+            <div className="perfil-nombre-section" style={{ marginBottom: 16 }}>
+              <input
+                className="perfil-nombre-input"
+                type="text"
+                placeholder='Modifica tu nombre'
+                value={nombrePerfil}
+                onChange={e => setNombrePerfil(e.target.value)}
+                disabled={!editandoDescripcion}
+                style={{
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                  background: editandoDescripcion ? '#222' : '#111',
+                  color: '#00ff00',
+                  border: '1px solid #00ff00',
+                  borderRadius: 8,
+                  marginBottom: 8,
+                  width: 220
+                }}
+              />
+            </div>
             <div className="perfil-foto-section">
               <div className="perfil-foto-circulo">
                 <img
@@ -901,6 +997,21 @@ const Navbar = () => {
             <p style={{ color: "#00ff00" }}>
               ¡Bienvenido, administrador! Aquí puedes gestionar usuarios.
             </p>
+            <input
+              type="text"
+              placeholder="Buscar usuario por nombre, correo o rol..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                marginBottom: '16px',
+                padding: '8px',
+                width: '100%',
+                background: '#222',
+                color: '#00ff00',
+                border: '1px solid #00ff00',
+                borderRadius: '8px'
+              }}
+            />
             <div style={{ overflowX: 'auto', marginTop: 30 }}>
               <table {...getTableProps()} className="admin-table">
                 <thead>

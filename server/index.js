@@ -4,13 +4,15 @@ const mysql = require('mysql2');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Conexión a MySQL
 const db = mysql.createConnection({
@@ -29,45 +31,51 @@ db.connect((err) => {
 });
 
 // Ruta para registrar usuario
-app.post('/createUser', (req, res) => {
+app.post('/createUser', async (req, res) => {
   const { Nombre, Correo, Contrasena } = req.body;
-
-  const query = 'INSERT INTO usuario (Nombre, Correo, Contraseña, Rol) VALUES (?, ?, ?, ?)';
-  db.query(query, [Nombre, Correo, Contrasena, 'usuario'], (err, result) => {
-    if (err) {
-      console.error('Error al insertar nombre:', err);
-      return res.status(500).json({ error: 'Error al registrar nombre' });
-    }
-
-    const idUsuario = result.insertId;
-    // Crea el repositorio automáticamente
-    const repoQuery = 'INSERT INTO repositorio (Nombre, Fecha_Creacion, ID_Usuario) VALUES (?, NOW(), ?)';
-    db.query(repoQuery, [`Repositorio de ${Nombre}`, idUsuario], (err2) => {
-      if (err2) {
-        console.error('Error al crear repositorio:', err2);
-        return res.status(500).json({ error: 'Usuario creado pero error al crear repositorio' });
+  try {
+    const hash = await bcrypt.hash(Contrasena, 10);
+    const query = 'INSERT INTO usuario (Nombre, Correo, Contraseña, Rol) VALUES (?, ?, ?, ?)';
+    db.query(query, [Nombre, Correo, hash, 'usuario'], (err, result) => {
+      if (err) {
+        console.error('Error al insertar nombre:', err);
+        return res.status(500).json({ error: 'Error al registrar nombre' });
       }
-      res.status(201).json({ message: 'Usuario y repositorio creados exitosamente' });
+
+      const idUsuario = result.insertId;
+      // Crea el repositorio automáticamente
+      const repoQuery = 'INSERT INTO repositorio (Nombre, Fecha_Creacion, ID_Usuario) VALUES (?, NOW(), ?)';
+      db.query(repoQuery, [`Repositorio de ${Nombre}`, idUsuario], (err2) => {
+        if (err2) {
+          console.error('Error al crear repositorio:', err2);
+          return res.status(500).json({ error: 'Usuario creado pero error al crear repositorio' });
+        }
+        res.status(201).json({ message: 'Usuario y repositorio creados exitosamente' });
+      });
     });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al hashear contraseña' });
+  }
 });
 
 // Ruta para iniciar sesión
 app.post('/login', (req, res) => {
   const { Correo, Contrasena } = req.body;
-
-  const query = 'SELECT * FROM usuario WHERE Correo = ? AND Contraseña = ?';
-  db.query(query, [Correo, Contrasena], (err, results) => {
+  const query = 'SELECT * FROM usuario WHERE Correo = ?';
+  db.query(query, [Correo], async (err, results) => {
     if (err) {
       console.error('Error al hacer login:', err);
       return res.status(500).json({ status: 'error', message: 'Error en el servidor' });
     }
-
     if (results.length > 0) {
-      // Usuario encontrado
-      return res.status(200).json({ status: 'success', user: results[0] });
+      const user = results[0];
+      const match = await bcrypt.compare(Contrasena, user.Contraseña);
+      if (match) {
+        return res.status(200).json({ status: 'success', user });
+      } else {
+        return res.status(401).json({ status: 'fail', message: 'Credenciales inválidas' });
+      }
     } else {
-      // Credenciales inválidas
       return res.status(401).json({ status: 'fail', message: 'Credenciales inválidas' });
     }
   });
@@ -86,7 +94,7 @@ const upload = multer({ storage: storage });
 // Obtener las cosas agregadas por el usuario
 app.get('/perfil/:id', (req, res) => {
   const id = req.params.id;
-  db.query('SELECT FotoPerfil, Descripcion, Baneado FROM usuario WHERE ID_Usuario = ?', [id], (err, results) => {
+  db.query('SELECT FotoPerfil, Descripcion, Baneado, Nombre FROM usuario WHERE ID_Usuario = ?', [id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Error al obtener perfil' });
     res.json(results[0]);
   });
@@ -95,15 +103,36 @@ app.get('/perfil/:id', (req, res) => {
 // Actualiza el perfil del usuario
 app.post('/perfil/:id', (req, res) => {
   const id = req.params.id;
-  const { FotoPerfil, Descripcion } = req.body;
-  db.query(
-    'UPDATE usuario SET FotoPerfil = ?, Descripcion = ? WHERE ID_Usuario = ?',
-    [FotoPerfil, Descripcion, id],
-    (err) => {
-      if (err) return res.status(500).json({ error: 'Error al actualizar perfil' });
-      res.json({ status: 'success' });
-    }
-  );
+  const { FotoPerfil, Descripcion, Nombre } = req.body;
+
+  // Construye el query dinámicamente según los campos enviados
+  let fields = [];
+  let values = [];
+
+  if (FotoPerfil !== undefined) {
+    fields.push('FotoPerfil = ?');
+    values.push(FotoPerfil);
+  }
+  if (Descripcion !== undefined) {
+    fields.push('Descripcion = ?');
+    values.push(Descripcion);
+  }
+  if (Nombre !== undefined && Nombre !== "") {
+    fields.push('Nombre = ?');
+    values.push(Nombre);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).json({ error: 'No hay campos para actualizar' });
+  }
+
+  values.push(id);
+
+  const query = `UPDATE usuario SET ${fields.join(', ')} WHERE ID_Usuario = ?`;
+  db.query(query, values, (err) => {
+    if (err) return res.status(500).json({ error: 'Error al actualizar perfil' });
+    res.json({ status: 'success' });
+  });
 });
 
 // Ruta para obtener los usuarios y mostrarlos en "Compartir"
@@ -447,7 +476,7 @@ app.delete('/usuario/:id', (req, res) => {
         console.error('Error al eliminar repositorio del usuario:', err2);
         return res.status(500).json({ error: 'Error al eliminar repositorio del usuario' });
       }
-      
+
       // 3. Elimina el usuario
       db.query('DELETE FROM usuario WHERE ID_Usuario = ?', [idUsuario], (err3) => {
         if (err3) {

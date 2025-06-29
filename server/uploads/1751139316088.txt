@@ -1,0 +1,88 @@
+CREATE OR ALTER PROCEDURE sp_InsertarVenta
+    @FechaVenta datetime,
+    @IDCliente int,
+    @IDProducto int,
+    @IDSucursal int,
+    @TipoPago varchar(20),
+    @Cantidad decimal(10,3),
+    @PrecioUnitario decimal(18,2),
+    @Observacion varchar(200) = NULL  -- Parámetro opcional
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @Resultado varchar(100)
+    DECLARE @NroVenta int
+    DECLARE @ClienteExiste bit = 0
+    DECLARE @ProductoExiste bit = 0
+    DECLARE @SucursalExiste bit = 0
+    
+    BEGIN TRY
+        -- Validar existencia del cliente
+        SELECT @ClienteExiste = 1 
+        FROM CLIENTES 
+        WHERE IDCLIENTE = @IDCliente
+        
+        -- Validar existencia del producto
+        SELECT @ProductoExiste = 1 
+        FROM PRODUCTOS 
+        WHERE IDPRODUCTO = @IDProducto
+        
+        -- Validar existencia de la sucursal
+        SELECT @SucursalExiste = 1 
+        FROM SUCURSALES 
+        WHERE IDSUCURSAL = @IDSucursal
+        
+        -- Obtener el próximo NROVENTA
+        SELECT @NroVenta = ISNULL(MAX(NROVENTA), 0) + 1 
+        FROM VENTASDIARIAS
+        
+        -- Realizar validaciones e inserción
+        IF @ClienteExiste = 0
+        BEGIN
+            SET @Resultado = 'Error: El cliente no existe'
+        END
+        ELSE IF @ProductoExiste = 0
+        BEGIN
+            SET @Resultado = 'Error: El producto no existe'
+        END
+        ELSE IF @SucursalExiste = 0
+        BEGIN
+            SET @Resultado = 'Error: La sucursal no existe'
+        END
+        ELSE
+        BEGIN
+            -- Insertar la venta
+            INSERT INTO VENTASDIARIAS (
+                NROVENTA,
+                FECHAVENTA,
+                IDCLIENTE,
+                IDPRODUCTO,
+                IDSUCURSAL,
+                TIPOPAGO,
+                CANTIDAD,
+                PRECIO,
+                OBSERVACION
+            )
+            VALUES (
+                @NroVenta,
+                @FechaVenta,
+                @IDCliente,
+                @IDProducto,
+                @IDSucursal,
+                @TipoPago,
+                @Cantidad,
+                @PrecioUnitario,
+                @Observacion
+            )
+            
+            SET @Resultado = 'Venta registrada exitosamente. Número de venta: ' + CAST(@NroVenta AS varchar)
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Resultado = 'Error: ' + ERROR_MESSAGE()
+    END CATCH
+    
+    -- Retornar resultado
+    SELECT @Resultado AS Mensaje
+END
