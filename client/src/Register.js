@@ -92,82 +92,94 @@ function Register() {
   };
 
   return (
-    <div className="Container-register">
-      <h1>Registro</h1>
+    <>
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="video-fondo"
+      >
+        <source src={process.env.PUBLIC_URL + "/login-register.mp4"} type="video/mp4" />
+        Tu navegador no soporta el video de fondo.
+      </video>
 
-      <div className="input-group">
-        <label htmlFor="Nombre">Nombre:</label>
-        <input
-          type="text"
-          id="Nombre"
-          value={Nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
+      <div className="login-container">
+        <h1>Registro</h1>
+
+        <div className="input-group">
+          <label htmlFor="Nombre">Nombre:</label>
+          <input
+            type="text"
+            id="Nombre"
+            value={Nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="Contrasena">Contraseña:</label>
+          <input
+            type="password"
+            id="Contrasena"
+            value={Contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="Contrasena2">Repetir contraseña:</label>
+          <input
+            type="password"
+            id="Contrasena2"
+            value={Contrasena2}
+            onChange={(e) => setContrasena2(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="Correo">Correo:</label>
+          <input
+            type="text"
+            id="correo"
+            value={Correo}
+            onChange={(e) => setCorreo(e.target.value)}
+          />
+        </div>
+
+        <button type="button" onClick={addUser}>REGISTRAR</button>
+        <p className="login-link-row">
+          ¿Quieres iniciar sesión?
+          <a
+            href="/login"
+            className="login-link-btn"
+            onClick={e => {
+              e.preventDefault();
+              Swal.fire({
+                title: 'Redireccionando',
+                text: 'Te llevaremos al login...',
+                background: '#111',
+                color: '#00ff00',
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true,
+                scrollbarPadding: false,
+                customClass: {
+                  confirmButton: 'swal2-confirm-wide'
+                },
+                didOpen: () => Swal.showLoading()
+              }).then(() => {
+                window.location.href = '/login';
+              });
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            Haz click aqui
+          </a>
+        </p>
       </div>
-
-      <div className="input-group">
-        <label htmlFor="Contrasena">Contraseña:</label>
-        <input
-          type="password"
-          id="Contrasena"
-          value={Contrasena}
-          onChange={(e) => setContrasena(e.target.value)}
-        />
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="Contrasena2">Repetir contraseña:</label>
-        <input
-          type="password"
-          id="Contrasena2"
-          value={Contrasena2}
-          onChange={(e) => setContrasena2(e.target.value)}
-        />
-      </div>
-
-      <div className="input-group">
-        <label htmlFor="Correo">Correo:</label>
-        <input
-          type="text"
-          id="correo"
-          value={Correo}
-          onChange={(e) => setCorreo(e.target.value)}
-        />
-      </div>
-
-      <button type="button" onClick={addUser}>REGISTRAR</button>
-      <p className="login-link-row">
-        ¿Quieres iniciar sesión?
-        <a
-          href="/login"
-          className="login-link-btn"
-          onClick={e => {
-            e.preventDefault();
-            Swal.fire({
-              title: 'Redireccionando',
-              text: 'Te llevaremos al login...',
-              background: '#111',
-              color: '#00ff00',
-              showConfirmButton: false,
-              timer: 1200,
-              timerProgressBar: true,
-              scrollbarPadding: false,
-              customClass: {
-                confirmButton: 'swal2-confirm-wide'
-              },
-              didOpen: () => Swal.showLoading()
-            }).then(() => {
-              window.location.href = '/login';
-            });
-          }}
-          role="button"
-          tabIndex={0}
-        >
-          Haz click aqui
-        </a>
-      </p>
-    </div>
-
+    </>
   );
 }
 

@@ -3,7 +3,7 @@
   padding: 1rem;
   display: flex;
   justify-content: center;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.164);
+  box-shadow: 0 0 3px rgba(0, 255, 0, 0.164);
   position: fixed; 
   top: 0;
   left: 0;
@@ -17,7 +17,7 @@
   text-align: center;
   margin-top: 1rem;
   font-size: 1.2rem;
-  text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+  text-shadow: 0 0 3px #00ff00, 0 0 3px #00ff00;
   height: 450px;
 }
 
@@ -40,16 +40,16 @@
   padding: auto; 
   border-radius: 12px; 
   border: 2px solid #00ff00; 
-  box-shadow: 0 0 15px #00ff00; 
+  box-shadow: 0 0 1px #00ff00; 
   cursor: pointer;
   transition: all 0.3s ease;
-  text-shadow: 0 0 5px #00ff00;
+  text-shadow: 0 0 3px #00ff00;
 }
 
 .navbar-links li a:hover,
 .navbar-links li button:hover {
   color: #00ff88;
-  text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88;
-  box-shadow: 0 0 25px #00ff88;
+  text-shadow: 0 0 3px #00ff88, 0 0 3px #00ff88;
+  box-shadow: 0 0 3px #00ff88;
 }
 

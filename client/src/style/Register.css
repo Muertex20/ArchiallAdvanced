@@ -1,9 +1,10 @@
 .Container-register {
-  background-color: #121212;
+  background-color: rgba(18, 18, 18, 0.55);
+  /* Fondo oscuro semi-transparente */
   padding: 25px 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgb(0, 248, 17);
-  width: 400px;
+  border-radius: 16px;
+  box-shadow: 0 0 24px #00ff0033;
+  width: 350px;
   color: #ccc;
   display: flex;
   flex-direction: column;
@@ -11,14 +12,19 @@
   align-items: stretch;
   height: auto;
   box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
-  background: linear-gradient(to bottom right, #000000, #000000);
+  background: transparent;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -26,7 +32,8 @@ body, html {
   justify-content: center;
 }
 
-#root, .App {
+#root,
+.App {
   height: 100%;
   display: flex;
   align-items: center;
@@ -41,10 +48,10 @@ h1 {
 }
 
 form {
-  background-color: #121212;
+  background-color: transparent;
   padding: 25px 20px;
   border-radius: 10px;
-  box-shadow: 0 0 15px rgb(0, 248, 17);
+  box-shadow: none;
   width: 300px;
   color: #ccc;
 }
@@ -58,7 +65,7 @@ a {
   width: 50%;
   align-self: center;
   padding: 12px;
-  color: rgb(17, 0, 255);
+  color: rgba(234, 255, 0, 0.856);
   font-size: 15px;
   font-weight: bold;
 }
@@ -71,7 +78,7 @@ a {
   width: 100%;
   padding: 8px 2px;
   margin-top: 4px;
-  background: #1f1f1f;
+  background: rgba(31, 31, 31, 0.5);
   border: 1.5px solid #010101;
   border-radius: 6px;
   color: rgb(43, 255, 0);
@@ -108,10 +115,26 @@ button:hover {
 }
 
 @keyframes neon-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 10px #1eff00, 0 0 20px #1eff00, 0 0 30px #1eff00;
   }
+
   50% {
     box-shadow: 0 0 8px #a7ff03, 0 0 30px #a7ff03, 0 0 40px #a7ff03;
   }
+}
+
+/* Extras */
+
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:focus,
+.input-group input:-webkit-autofill:hover,
+.input-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #00ff00 !important;
+  color: #00ff00 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

@@ -912,6 +912,12 @@ const Navbar = () => {
         return (
           <div className='Desing-conteiner perfil-container'>
             <div className="perfil-nombre-section" style={{ marginBottom: 16 }}>
+              <label
+                htmlFor="perfil-nombre-input"
+                className="perfil-nombre-label"
+              >
+                Cambia tu nombre de usuario
+              </label>
               <input
                 className="perfil-nombre-input"
                 type="text"

@@ -84,62 +84,73 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h1>Inicio de sesion</h1>
+    <>
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="video-fondo"
+      >
+        <source src={process.env.PUBLIC_URL + "/login-register.mp4"} type="video/mp4" />
+        Tu navegador no soporta el video de fondo.
+      </video>
 
-      <div className="input-group">
-        <label htmlFor="Correo">Correo:</label>
-        <input
-          type="text"
-          id="correo"
-          value={Correo}
-          onChange={(e) => setCorreo(e.target.value)}
-        />
+      <div className="login-container">
+        <h1>Inicio de sesión</h1>
+        <div className="input-group">
+          <label htmlFor="Correo">Correo:</label>
+          <input
+            type="text"
+            id="correo"
+            value={Correo}
+            onChange={(e) => setCorreo(e.target.value)}
+          />
+        </div>
+
+        <div className="input-group">
+          <label htmlFor="Contrasena">Contraseña:</label>
+          <input
+            type="password"
+            id="Contrasena"
+            value={Contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+          />
+        </div>
+
+        <button type="button" onClick={iniciarSesion}>INICIAR SESION</button>
+        <p className="login-link-row">
+          ¿Quieres registrarte?
+          <a
+            href="/Register"
+            className="login-link-btn"
+            onClick={e => {
+              e.preventDefault();
+              Swal.fire({
+                title: 'Redireccionando',
+                text: 'Te llevaremos al registro...',
+                background: '#111',
+                color: '#00ff00',
+                showConfirmButton: false,
+                timer: 1200,
+                timerProgressBar: true,
+                scrollbarPadding: false,
+                customClass: {
+                  confirmButton: 'swal2-confirm-wide'
+                },
+                didOpen: () => Swal.showLoading()
+              }).then(() => {
+                window.location.href = '/Register';
+              });
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            Haz click aqui
+          </a>
+        </p>
       </div>
-
-      <div className="input-group">
-        <label htmlFor="Contrasena">Contraseña:</label>
-        <input
-          type="password"
-          id="Contrasena"
-          value={Contrasena}
-          onChange={(e) => setContrasena(e.target.value)}
-        />
-      </div>
-
-      <button type="button" onClick={iniciarSesion}>INICIAR SESION</button>
-      <p className="login-link-row">
-        ¿Quieres registrarte?
-        <a
-          href="/Register"
-          className="login-link-btn"
-          onClick={e => {
-            e.preventDefault();
-            Swal.fire({
-              title: 'Redireccionando',
-              text: 'Te llevaremos al registro...',
-              background: '#111',
-              color: '#00ff00',
-              showConfirmButton: false,
-              timer: 1200,
-              timerProgressBar: true,
-              scrollbarPadding: false,
-              customClass: {
-                confirmButton: 'swal2-confirm-wide'
-              },
-              didOpen: () => Swal.showLoading() 
-            }).then(() => {
-              window.location.href = '/Register';
-            });
-          }}
-          role="button"
-          tabIndex={0}
-        >
-          Haz click aqui
-        </a>
-      </p>
-    </div>
-
+    </>
   );
 }
 
