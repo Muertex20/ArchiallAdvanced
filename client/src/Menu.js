@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { getCookie, deleteCookie } from './Cookies';
 import { useTable } from 'react-table';
-/* import AdminPanel from './Admin/AdminPanel';
-import AdminRoute from './Admin/AdminRoute'; */
 import Axios from 'axios';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +30,7 @@ const Navbar = () => {
   const [busquedaUsuario, setBusquedaUsuario] = useState('');
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  
 
   React.useEffect(() => {
     const userId = getCookie('userId');
@@ -56,7 +55,7 @@ const Navbar = () => {
       showConfirmButton: false,
       timer: 1500,
       timerProgressBar: true,
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
     }).then(() => {
       navigate('/login');
@@ -86,7 +85,7 @@ const Navbar = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
       scrollbarPadding: false,
       customClass: {
@@ -103,7 +102,7 @@ const Navbar = () => {
         icon: 'success',
         title: 'Archivo eliminado',
         confirmButtonColor: '#00e200',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         scrollbarPadding: false,
         customClass: {
@@ -116,7 +115,7 @@ const Navbar = () => {
         icon: 'error',
         title: 'Error al eliminar archivo',
         confirmButtonColor: '#00e200',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         scrollbarPadding: false,
         customClass: {
@@ -157,7 +156,7 @@ const Navbar = () => {
       Swal.fire({
         icon: 'success',
         title: 'Descripción guardada',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
@@ -238,7 +237,7 @@ const Navbar = () => {
               showCancelButton: true,
               confirmButtonText: 'Aceptar',
               cancelButtonText: 'Cancelar',
-              background: '#111',
+              background: '#000000ec',
               color: '#00ff00',
               confirmButtonColor: '#00e200',
               customClass: {
@@ -254,7 +253,7 @@ const Navbar = () => {
                   Swal.fire({
                     icon: 'success',
                     title: '¡Archivos agregados a tu repositorio!',
-                    background: '#111',
+                    background: '#000000ec',
                     color: '#00ff00',
                     confirmButtonColor: '#00e200',
                     customClass: {
@@ -294,7 +293,7 @@ const Navbar = () => {
                 icon: 'info',
                 title: 'Notificación',
                 text: noti.Mensaje,
-                background: '#111',
+                background: '#000000ec',
                 color: '#00ff00',
                 confirmButtonColor: '#00e200',
                 scrollbarPadding: false,
@@ -377,7 +376,7 @@ const Navbar = () => {
       Swal.fire({
         icon: 'warning',
         title: 'No tienes archivos para compartir',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         customClass: {
@@ -413,7 +412,7 @@ const Navbar = () => {
       showCancelButton: true,
       confirmButtonText: 'Enviar',
       cancelButtonText: 'Cancelar',
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
       scrollbarPadding: false,
       confirmButtonColor: '#00e200',
@@ -459,7 +458,7 @@ const Navbar = () => {
         icon: 'success',
         title: '¡Archivos compartidos!',
         text: `Se compartieron ${archivosSeleccionados.length} archivos.`,
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
@@ -472,7 +471,7 @@ const Navbar = () => {
         icon: 'error',
         title: 'Error',
         text: 'No se pudieron compartir los archivos.',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
@@ -498,7 +497,7 @@ const Navbar = () => {
           icon: 'info',
           title: `Archivos de ${usuario.Nombre}`,
           text: 'Este usuario no tiene archivos en su repositorio.',
-          background: '#111',
+          background: '#000000ec',
           color: '#00ff00',
           confirmButtonColor: '#00e200',
           scrollbarPadding: false,
@@ -515,7 +514,7 @@ const Navbar = () => {
           ${archivos.map(a => `<li>${a.Nombre}</li>`).join('')}
         </ul>
       `,
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
@@ -526,7 +525,7 @@ const Navbar = () => {
         icon: 'error',
         title: 'Error',
         text: 'No se pudieron obtener los archivos del usuario.',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
@@ -545,7 +544,7 @@ const Navbar = () => {
       confirmButtonColor: '#00e200',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, eliminar',
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
       customClass: {
         confirmButton: 'swal2-confirm-wide',
@@ -559,7 +558,7 @@ const Navbar = () => {
               icon: 'success',
               title: 'Eliminado',
               text: 'El usuario ha sido eliminado.',
-              background: '#111',
+              background: '#000000ec',
               color: '#00ff00',
               confirmButtonColor: '#00e200',
               scrollbarPadding: false,
@@ -583,7 +582,7 @@ const Navbar = () => {
       confirmButtonColor: '#00e200',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Sí, cambiar',
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
       customClass: {
         confirmButton: 'swal2-confirm-wide',
@@ -597,7 +596,7 @@ const Navbar = () => {
               icon: 'success',
               title: 'Rol cambiado',
               text: `El usuario ahora es "${nuevoRol}".`,
-              background: '#111',
+              background: '#000000ec',
               color: '#00ff00',
               confirmButtonColor: '#00e200',
               scrollbarPadding: false,
@@ -622,7 +621,7 @@ const Navbar = () => {
       confirmButtonColor: '#00e200',
       cancelButtonColor: '#d33',
       confirmButtonText: baneadoActual ? 'Sí, desbanear' : 'Sí, banear',
-      background: '#111',
+      background: '#000000ec',
       color: '#00ff00',
       customClass: {
         confirmButton: 'swal2-confirm-wide',
@@ -638,7 +637,7 @@ const Navbar = () => {
               text: baneadoActual
                 ? 'El usuario ha sido desbaneado.'
                 : 'El usuario ha sido baneado.',
-              background: '#111',
+              background: '#000000ec',
               color: '#00ff00',
               confirmButtonColor: '#00e200',
               scrollbarPadding: false,
@@ -662,7 +661,7 @@ const Navbar = () => {
             icon: 'error',
             title: 'Acceso denegado',
             text: 'Fuiste baneado por uso indebido de la web.',
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             confirmButtonColor: '#00e200',
             customClass: {
@@ -726,7 +725,7 @@ const Navbar = () => {
         </p>;
       case "subir":
         return (
-          <div className="Desing-conteiner">
+          <div className="Desing-conteiner subir-card">
             <h2>Subir archivo</h2>
             <form onSubmit={handleUpload} className="upload-form">
               <div className="upload-box" onClick={() => document.getElementById('fileInput').click()}>
@@ -804,7 +803,7 @@ const Navbar = () => {
                         showCancelButton: true,
                         confirmButtonText: 'Compartir',
                         cancelButtonText: 'Cerrar',
-                        background: '#111',
+                        background: '#000000ec',
                         color: '#00ff00',
                         scrollbarPadding: false,
                         customClass: {
@@ -1012,7 +1011,7 @@ const Navbar = () => {
                 marginBottom: '16px',
                 padding: '8px',
                 width: '100%',
-                background: '#222',
+                background: '#000000ec',
                 color: '#00ff00',
                 border: '1px solid #00ff00',
                 borderRadius: '8px'
@@ -1051,6 +1050,16 @@ const Navbar = () => {
   };
   return (
     <>
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="video-fondo"
+      >
+        <source src={process.env.PUBLIC_URL + "/Menu.mp4"} type="video/mp4" />
+        Tu navegador no soporta el video de fondo.
+      </video>
       <nav className="navbar">
         <ul className="navbar-links">
           <li><button onClick={() => setVistaActual("bienvenida")}>Bienvenida</button></li>

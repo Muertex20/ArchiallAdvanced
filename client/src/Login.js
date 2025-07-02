@@ -19,7 +19,7 @@ function Login() {
         text: 'Debe completar todos los campos.',
         scrollbarPadding: false,
         confirmButtonColor: '#00e200',
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         customClass: {
           confirmButton: 'swal2-confirm-wide'
@@ -45,7 +45,7 @@ function Login() {
             timer: 1500,
             timerProgressBar: true,
             scrollbarPadding: false,
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             didOpen: () => Swal.showLoading()
           }).then(() => {
@@ -58,7 +58,7 @@ function Login() {
             text: 'Credenciales inválidas.',
             scrollbarPadding: false,
             confirmButtonColor: '#00e200',
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             customClass: {
               confirmButton: 'swal2-confirm-wide'
@@ -74,7 +74,7 @@ function Login() {
           text: 'Error al iniciar sesión.',
           scrollbarPadding: false,
           confirmButtonColor: '#00e200',
-          background: '#111',
+          background: '#000000ec',
           color: '#00ff00',
           customClass: {
             confirmButton: 'swal2-confirm-wide'
@@ -129,7 +129,7 @@ function Login() {
               Swal.fire({
                 title: 'Redireccionando',
                 text: 'Te llevaremos al registro...',
-                background: '#111',
+                background: '#000000ec',
                 color: '#00ff00',
                 showConfirmButton: false,
                 timer: 1200,

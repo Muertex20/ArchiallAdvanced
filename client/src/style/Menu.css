@@ -4,7 +4,7 @@ html {
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
-  background: linear-gradient(to bottom right, #000000, #000000);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,6 +58,19 @@ html {
   }
 }
 
+.subir-card {
+  background: rgba(18, 18, 18, 0.55);
+  border: 2px solid #00ff00;
+  border-radius: 16px;
+  box-shadow: 0 0 20px #00ff00;
+  color: #00ff00;
+  padding: 24px 32px;
+  margin: 24px auto;
+  max-width: 400px;
+  height: 350px;
+  text-align: center;
+}
+
 .upload-text {
   margin-top: 10px;
   color: #00ff00;
@@ -97,7 +110,7 @@ html {
 .submit-button,
 .cancel-button {
   color: #00ff00;
-  background-color: #000;
+  background-color: #00000086;
   font-family: 'Courier New', Courier, monospace;
 }
 
@@ -195,8 +208,15 @@ html {
   margin-top: -250px;
 }
 
+h2 {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  text-shadow: 0 0 5px #00ff00;
+  color: #00ff00;
+}
+
 .usuario-card {
-  background: #111;
+  background: transparent;
   border: 2px solid #00ff00;
   border-radius: 16px;
   box-shadow: 0 0 20px #00ff00;
@@ -365,7 +385,7 @@ html {
   min-height: 80px;
   border-radius: 12px;
   border: 2px solid #00ff00;
-  background: #111;
+  background: #111111a4;
   color: #00ff00;
   font-family: 'Courier New', Courier, monospace;
   font-size: 1rem;
@@ -379,7 +399,7 @@ html {
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  background: #111;
+  background: #111111ad;
   color: #00ff00;
   box-shadow: 0 0 20px #00ff0055;
   border-radius: 8px;
@@ -394,18 +414,18 @@ html {
 }
 
 .admin-table th {
-  background: #181818;
+  background: #1111119b;
   color: #00ff00;
   font-weight: bold;
   font-size: 1.1em;
 }
 
 .admin-table tr:nth-child(even) {
-  background: #161616;
+  background: #111111ad;
 }
 
 .admin-table tr:hover {
-  background: #222;
+  background: #111111ad;
   color: #a7ff03;
 }
 
@@ -475,4 +495,19 @@ html {
   text-align: center;
   letter-spacing: 1px;
   margin-bottom: 20px;
+}
+
+.video-fondo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100vw;
+  min-height: 100vh;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  opacity: 1;
+  pointer-events: none;
 }

@@ -22,7 +22,7 @@ function Register() {
         html: errores.join('<br>'),
         confirmButtonColor: '#00e200',
         scrollbarPadding: false,
-        background: '#111',
+        background: '#000000ec',
         color: '#00ff00',
         customClass: {
           confirmButton: 'swal2-confirm-wide'
@@ -40,7 +40,7 @@ function Register() {
           icon: 'success',
           title: 'Éxito',
           text: 'Usuario registrado exitosamente.',
-          background: '#111',
+          background: '#000000ec',
           color: '#00ff00',
           scrollbarPadding: false,
           customClass: {
@@ -57,7 +57,7 @@ function Register() {
             title: 'Error en la respuesta del servidor.',
             confirmButtonColor: '#00e200',
             scrollbarPadding: false,
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             customClass: {
               confirmButton: 'swal2-confirm-wide'
@@ -69,7 +69,7 @@ function Register() {
             title: 'No se recibió respuesta del servidor',
             confirmButtonColor: '#00e200',
             scrollbarPadding: false,
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             customClass: {
               confirmButton: 'swal2-confirm-wide'
@@ -81,7 +81,7 @@ function Register() {
             title: 'Error en la petición',
             confirmButtonColor: '#00e200',
             scrollbarPadding: false,
-            background: '#111',
+            background: '#000000ec',
             color: '#00ff00',
             customClass: {
               confirmButton: 'swal2-confirm-wide'
@@ -158,7 +158,7 @@ function Register() {
               Swal.fire({
                 title: 'Redireccionando',
                 text: 'Te llevaremos al login...',
-                background: '#111',
+                background: '#000000ec',
                 color: '#00ff00',
                 showConfirmButton: false,
                 timer: 1200,
