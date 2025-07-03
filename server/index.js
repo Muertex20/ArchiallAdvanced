@@ -5,14 +5,15 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
+const clamd = require('clamdjs');
 
 const app = express();
 const PORT = 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '300mb' }));
+app.use(express.urlencoded({ limit: '300mb', extended: true }));
 
 // Conexión a MySQL
 const db = mysql.createConnection({
@@ -29,6 +30,9 @@ db.connect((err) => {
   }
   console.log('Conectado a la base de datos MySQL');
 });
+
+// Configuración de clamdjs para escaneo directo al demonio ClamAV (usar 127.0.0.1 para evitar problemas de resolución en Windows)
+const clamavScanner = clamd.createScanner('127.0.0.1', 3310);
 
 // Ruta para registrar usuario
 app.post('/createUser', async (req, res) => {
@@ -149,42 +153,77 @@ app.get('/usuarios', (req, res) => {
   );
 });
 // Ruta subir archi
-app.post('/uploads', upload.single('file'), (req, res) => {
+app.post('/uploads', upload.single('file'), async (req, res) => {
   const { ID_Usuario, ID_Repositorio } = req.body;
   console.log('BODY:', req.body);
   console.log('FILE:', req.file);
+
   if (!req.file) {
     return res.status(400).json({ error: 'No se ha subido ningún archivo' });
   }
   if (!ID_Usuario || !ID_Repositorio) {
     return res.status(400).json({ error: 'Faltan datos de usuario o repositorio' });
   }
-  // Guarda la info del archivo en la bd
-  const nombre = req.file.originalname;
-  const tipo = req.file.mimetype;
-  const tamaño = req.file.size;
-  const fecha = new Date();
-  const ruta = req.file.filename; // Solo el nombre del archivo, no la ruta completa
+  try {
+    // Escanear el archivo usando un stream para evitar problemas de rutas entre Windows y Docker
+    const fileStream = fs.createReadStream(req.file.path);
+    console.log('Escaneando archivo usando stream:', req.file.path);
+    const scanResult = await clamavScanner.scanStream(fileStream);
+    console.log('Resultado del escaneo ClamAV:', scanResult, 'TYPE:', typeof scanResult);
 
-  const query = `
-    INSERT INTO archivo (Nombre, Tipo, Tamaño, Fecha_Subida, Ruta, ID_Usuario, ID_Repositorio)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  db.query(
-    query,
-    [nombre, tipo, tamaño, fecha, ruta, ID_Usuario, ID_Repositorio],
-    (err, result) => {
-      if (err) {
-        console.error('Error al guardar archivo en la base de datos:', err);
-        return res.status(500).json({ error: 'Error al guardar archivo en la base de datos' });
-      }
-      res.status(200).json({
-        message: 'Archivo subido exitosamente',
-        filePath: req.file.path,
-        archivoId: result.insertId
+    // Si el resultado está vacío o null, bloquear el archivo
+    if (!scanResult || scanResult.toString().trim() === '') {
+      try { fs.unlinkSync(req.file.path); } catch (e) { console.error('Error borrando archivo sin resultado de escaneo:', e); }
+      return res.status(400).json({
+        error: 'No se pudo verificar el archivo por antivirus. El archivo fue bloqueado por seguridad.',
+        detalle: scanResult
       });
     }
-  );
+
+    // Validación robusta: bloquea si alguna línea termina en FOUND o contiene EICAR/VIRUS (soporta \r, \n, espacios)
+    const resultStr = (scanResult || '').toString().toUpperCase();
+    console.log('DEBUG ClamAV RAW RESULT:', JSON.stringify(resultStr), 'TYPE:', typeof resultStr);
+    const foundRegex = /^.*FOUND\s*$/m;
+    const infected = foundRegex.test(resultStr) || resultStr.includes('EICAR') || resultStr.includes('VIRUS');
+    if (infected) {
+      try { fs.unlinkSync(req.file.path); } catch (e) { console.error('Error borrando archivo infectado:', e); }
+      return res.status(400).json({ 
+        error: 'Tu archivo contiene un virus y fue bloqueado por seguridad.',
+        detalle: scanResult
+      });
+    }
+
+    // Si está limpio, guardar en la base de datos
+    const nombre = req.file.originalname;
+    const tipo = req.file.mimetype;
+    const tamaño = req.file.size;
+    const fecha = new Date();
+    const ruta = req.file.filename; // Solo el nombre del archivo, no la ruta completa
+
+    const query = `
+      INSERT INTO archivo (Nombre, Tipo, Tamaño, Fecha_Subida, Ruta, ID_Usuario, ID_Repositorio)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    db.query(
+      query,
+      [nombre, tipo, tamaño, fecha, ruta, ID_Usuario, ID_Repositorio],
+      (err, result) => {
+        if (err) {
+          console.error('Error al guardar archivo en la base de datos:', err);
+          return res.status(500).json({ error: 'Error al guardar archivo en la base de datos' });
+        }
+        res.status(200).json({
+          message: 'Archivo subido exitosamente',
+          filePath: req.file.path,
+          archivoId: result.insertId,
+        });
+      }
+    );
+  } catch (error) {
+    console.error('Error al escanear archivo:', error);
+    try { fs.unlinkSync(req.file.path); } catch (e) { /* ignora si ya no existe */ }
+    res.status(500).json({ error: 'Error al escanear archivo', detalle: error && error.message ? error.message : error });
+  }
 });
 
 app.get('/archivos/:idRepositorio', (req, res) => {

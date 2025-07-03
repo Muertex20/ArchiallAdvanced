@@ -1,0 +1,33 @@
+{
+  "author": "Lin Ning <linningde25@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/NingLin-P/clamdjs/issues"
+  },
+  "name": "clamdjs",
+  "version": "1.0.2",
+  "description": "A ClamAV client on node.js",
+  "scripts": {
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "mocha"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NingLin-P/clamdjs.git"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "standard": "^11.0.1"
+  },
+  "homepage": "https://github.com/NingLin-P/clamdjs",
+  "keywords": [
+    "clamav",
+    "clamd",
+    "virus",
+    "antivirus",
+    "clamscan",
+    "security"
+  ],
+  "license": "MIT"
+}

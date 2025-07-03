@@ -11,6 +11,8 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "clamdjs": "^1.0.2",
+    "clamscan": "^2.4.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "multer": "^2.0.1",

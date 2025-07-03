@@ -366,7 +366,24 @@ const Navbar = () => {
       setSelectedFile(null);
       cargarArchivos(carpetaActual); // <-- Aquí actualizas la lista de archivos
     } catch (err) {
-      setUploadMessage('Error al subir archivo');
+      // Integración de SweetAlert para mostrar mensaje de virus
+      if (err.response && err.response.data && err.response.data.error && err.response.data.error.includes('virus')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Archivo bloqueado',
+          text: err.response.data.error,
+          background: '#000000ec',
+          color: '#00ff00',
+          confirmButtonColor: '#00e200',
+          scrollbarPadding: false,
+          customClass: {
+            confirmButton: 'swal2-confirm-wide'
+          }
+        });
+        setUploadMessage('');
+      } else {
+        setUploadMessage('Error al subir archivo');
+      }
     }
   };
   /* Al momento de presionar el boton de compartir archivos se muestra un modal con los archivos disponibles
