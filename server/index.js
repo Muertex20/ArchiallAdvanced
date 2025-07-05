@@ -6,14 +6,18 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
 const clamd = require('clamdjs');
+const nsfw = require('nsfwjs');
+const tf = require('@tensorflow/tfjs');
+const { createCanvas, loadImage } = require('canvas');
+const ffmpeg = require('fluent-ffmpeg');
 
 const app = express();
 const PORT = 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '300mb' }));
-app.use(express.urlencoded({ limit: '300mb', extended: true }));
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
 // Conexión a MySQL
 const db = mysql.createConnection({
@@ -33,6 +37,27 @@ db.connect((err) => {
 
 // Configuración de clamdjs para escaneo directo al demonio ClamAV (usar 127.0.0.1 para evitar problemas de resolución en Windows)
 const clamavScanner = clamd.createScanner('127.0.0.1', 3310);
+
+// Modelo nsfwjs
+let nsfwModel = null;
+(async () => {
+  nsfwModel = await nsfw.load();
+  console.log('Modelo NSFWJS cargado');
+})();
+
+async function isImageNSFW(imagePath) {
+  if (!nsfwModel) {
+    throw new Error('El modelo NSFWJS no está cargado');
+  }
+  const img = await loadImage(imagePath);
+  const canvas = createCanvas(img.width, img.height);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  const predictions = await nsfwModel.classify(canvas);
+  // Puedes ajustar el umbral según tu tolerancia
+  const nsfwScore = predictions.find(p => p.className === 'Porn' || p.className === 'Hentai' || p.className === 'Sexy');
+  return nsfwScore && nsfwScore.probability > 0.7; // 0.7 es un umbral recomendado
+}
 
 // Ruta para registrar usuario
 app.post('/createUser', async (req, res) => {
@@ -164,6 +189,67 @@ app.post('/uploads', upload.single('file'), async (req, res) => {
   if (!ID_Usuario || !ID_Repositorio) {
     return res.status(400).json({ error: 'Faltan datos de usuario o repositorio' });
   }
+  // Analisis para verificar si el archivo es +18 (IMAGEN)
+  if (req.file.mimetype.startsWith('image/')) {
+    const nsfw = await isImageNSFW(req.file.path);
+    if (nsfw) {
+      try { fs.unlinkSync(req.file.path); } catch (e) { }
+      return res.status(400).json({
+        error: 'NO_PORNO',
+        message: 'No puedes subir archivos +18 aquí.'
+      });
+    }
+  }
+
+  // Analisis para verificar si el archivo es +18 (VIDEO)
+  if (req.file.mimetype.startsWith('video/')) {
+    const framesDir = path.join(__dirname, 'temp_frames_' + Date.now());
+    fs.mkdirSync(framesDir);
+    try {
+      // Extrae 5 frames distribuidos a lo largo del video
+      await new Promise((resolve, reject) => {
+        ffmpeg(req.file.path)
+          .on('end', resolve)
+          .on('error', reject)
+          .screenshots({
+            count: 5,
+            folder: framesDir,
+            filename: 'frame-%i.png'
+          });
+      });
+
+      // Analiza cada frame con función de detección +18
+      const frameFiles = fs.readdirSync(framesDir);
+      let esPorno = false;
+      for (const frame of frameFiles) {
+        const framePath = path.join(framesDir, frame);
+        try {
+          if (await isImageNSFW(framePath)) {
+            esPorno = true;
+            break;
+          }
+        } catch (e) {
+          console.error('Error analizando frame NSFW:', e);
+        }
+      }
+
+      // Limpia los frames temporales
+      fs.rmSync(framesDir, { recursive: true, force: true });
+
+      if (esPorno) {
+        try { fs.unlinkSync(req.file.path); } catch (e) { }
+        return res.status(400).json({
+          error: 'NO_PORNO',
+          message: 'Los videos +18 están prohibidos'
+        });
+      }
+    } catch (e) {
+      // Si hay error en el análisis, limpia y responde error
+      try { fs.rmSync(framesDir, { recursive: true, force: true }); } catch (e2) { }
+      try { fs.unlinkSync(req.file.path); } catch (e3) { }
+      return res.status(500).json({ error: 'Error al analizar video', detalle: e && e.message ? e.message : e });
+    }
+  }
   try {
     // Escanear el archivo usando un stream para evitar problemas de rutas entre Windows y Docker
     const fileStream = fs.createReadStream(req.file.path);
@@ -187,10 +273,45 @@ app.post('/uploads', upload.single('file'), async (req, res) => {
     const infected = foundRegex.test(resultStr) || resultStr.includes('EICAR') || resultStr.includes('VIRUS');
     if (infected) {
       try { fs.unlinkSync(req.file.path); } catch (e) { console.error('Error borrando archivo infectado:', e); }
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Tu archivo contiene un virus y fue bloqueado por seguridad.',
         detalle: scanResult
       });
+    }
+
+    // Detecta si es video
+    if (req.file.mimetype && req.file.mimetype.startsWith('video')) {
+      const framesDir = path.join(__dirname, 'temp_frames_' + Date.now());
+      fs.mkdirSync(framesDir);
+
+      // Extrae 5 frames distribuidos a lo largo del video
+      await new Promise((resolve, reject) => {
+        ffmpeg(req.file.path)
+          .on('end', resolve)
+          .on('error', reject)
+          .screenshots({
+            count: 5,
+            folder: framesDir,
+            filename: 'frame-%i.png'
+          });
+      });
+
+      // Analiza cada frame con función de detección +18
+      const frameFiles = fs.readdirSync(framesDir);
+      let esPorno = false;
+      for (const frame of frameFiles) {
+        const framePath = path.join(framesDir, frame);
+        // Aquí llama a la función de detección
+      }
+
+      // Limpia los frames temporales
+      fs.rmSync(framesDir, { recursive: true, force: true });
+
+      if (esPorno) {
+        // Borra el video subido si es +18
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ error: 'NO_PORNO', message: 'No puedes subir videos +18 aquí.' });
+      }
     }
 
     // Si está limpio, guardar en la base de datos

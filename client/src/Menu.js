@@ -364,10 +364,52 @@ const Navbar = () => {
       });
       setUploadMessage('Archivo subido exitosamente');
       setSelectedFile(null);
-      cargarArchivos(carpetaActual); // <-- Aquí actualizas la lista de archivos
+      cargarArchivos(carpetaActual);
     } catch (err) {
-      // Integración de SweetAlert para mostrar mensaje de virus
-      if (err.response && err.response.data && err.response.data.error && err.response.data.error.includes('virus')) {
+      // SweetAlert para archivos +18
+      const errorData = err.response && err.response.data ? err.response.data : {};
+      const errorText = (errorData.message || errorData.error || '').toLowerCase();
+      if (
+        errorData.error === 'NO_PORNO' ||
+        errorText.includes('+18') ||
+        errorText.includes('porno') ||
+        errorText.includes('prohibido') ||
+        errorText.includes('video')
+      ) {
+        // Si el mensaje menciona video, muestra el mensaje fijo
+        if (errorText.includes('video')) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Video no permitido',
+            text: 'Los videos +18 están prohibidos',
+            background: '#000000ec',
+            color: '#00ff00',
+            confirmButtonColor: '#00e200',
+            scrollbarPadding: false,
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
+        } else {
+          // Para imágenes u otros archivos +18, usa el mensaje del backend o uno fijo
+          Swal.fire({
+            icon: 'error',
+            title: 'Archivo no permitido',
+            text: errorData.message || 'No puedes subir archivos +18 aquí.',
+            background: '#000000ec',
+            color: '#00ff00',
+            confirmButtonColor: '#00e200',
+            scrollbarPadding: false,
+            customClass: {
+              confirmButton: 'swal2-confirm-wide'
+            }
+          });
+        }
+        setUploadMessage('');
+        setSelectedFile(null);
+      } else if (
+        errorData.error && errorData.error.includes('virus')
+      ) {
         Swal.fire({
           icon: 'error',
           title: 'Archivo bloqueado',
