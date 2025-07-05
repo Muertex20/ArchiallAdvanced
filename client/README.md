@@ -1,70 +1,40 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# ArchiAll - Explicación de la estructura del proyecto
 
-## Available Scripts
+Este proyecto está dividido en dos partes principales: `client` (frontend) y `server` (backend).
 
-In the project directory, you can run:
+## client/
+Aplicación web hecha en React para la gestión de usuarios, archivos y repositorios.
 
-### `npm start`
+- **public/**: Archivos estáticos y recursos (imágenes, videos, favicon, etc).
+- **src/**: Código fuente de React.
+  - **App.js**: Componente principal de la aplicación.
+  - **index.js**: Punto de entrada de React.
+  - **Login.js / Register.js**: Formularios de inicio de sesión y registro de usuarios.
+  - **Menu.js**: Menú principal de navegación.
+  - **ProtectedRoute.js**: Protege rutas que requieren autenticación.
+  - **Cookies.js**: Manejo de cookies para sesiones.
+  - **Validaciones.js**: Funciones de validación de formularios.
+  - **Admin/**: Componentes para el panel de administración.
+  - **style/**: Archivos CSS para los estilos de la app.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## server/
+Backend en Node.js/Express que gestiona la lógica de negocio, base de datos y seguridad.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **index.js**: Configura el servidor, importa rutas y aplica middlewares globales.
+- **routes/**: Define los endpoints de la API y delega la lógica a los controladores.
+  - **userRoutes.js**: Rutas de usuarios, login, perfil, notificaciones, administración.
+  - **uploadRoutes.js**: Rutas para subir, descargar y eliminar archivos.
+  - **repoRoutes.js**: Rutas para crear y consultar repositorios.
+  - **shareRoutes.js**: Rutas para compartir archivos entre usuarios.
+- **controllers/**: Lógica de negocio de cada endpoint.
+  - **userController.js**: Registro, login, perfil, administración y notificaciones.
+  - **uploadController.js**: Subida, descarga y eliminación de archivos, validaciones de seguridad.
+  - **repoController.js**: Creación y consulta de repositorios.
+  - **shareController.js**: Compartir, aceptar y rechazar archivos compartidos.
+- **utils/**: Utilidades y servicios auxiliares.
+  - **db.js**: Conexión a la base de datos MySQL.
+  - **nsfw.js**: Detección de contenido +18 en imágenes y videos usando IA.
+  - **clamav.js**: Escaneo antivirus de archivos subidos.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
